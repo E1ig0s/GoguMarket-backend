@@ -1,0 +1,12 @@
+FROM node:20
+
+COPY ./package.json ./yarn.lock /backend/
+WORKDIR /backend/
+RUN yarn install --production
+
+COPY . /backend/
+
+RUN yarn get-secret
+
+RUN yarn build
+CMD yarn start:dev
