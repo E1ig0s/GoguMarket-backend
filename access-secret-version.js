@@ -1,5 +1,8 @@
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 

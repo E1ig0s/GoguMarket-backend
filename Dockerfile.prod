@@ -7,4 +7,4 @@ RUN yarn install --production
 COPY . /backend/
 
 RUN yarn build
-CMD yarn start:dev
+CMD ["node", "access-secret-version.js"] && yarn start:dev
