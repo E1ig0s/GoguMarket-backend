@@ -1,6 +1,6 @@
 services:
     backend:
-        image: asia.gcr.io/gogumarket/gogu-market-nestjs:1.1
+        image: asia.gcr.io/gogumarket/gogu-market-nestjs:1.2
         platform: linux/x86_64
         build:
             context: .
