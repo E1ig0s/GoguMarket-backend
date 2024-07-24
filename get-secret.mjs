@@ -7,7 +7,7 @@ dotenv.config();
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 const name = 'projects/gogumarket/secrets/gogu-market-secret-gcp-storage-keyfile';
-const member = 'user:e1ig0sanonymous777@gmail.com';
+const member = 'user:e1ig0s@gogumarket.iam.gserviceaccount.com';
 
 const client = new SecretManagerServiceClient();
 
