@@ -18,7 +18,7 @@ async function accessSecretVersion() {
 
         const payload = JSON.parse(version.payload.data.toString());
 
-        const filePath = path.join(process.cwd(), process.env.GCP_STORAGE_KEYFILE);
+        const filePath = path.join(process.cwd(), 'gogumarket-b753518ff1af.json');
         await fs.writeFileSync(filePath, JSON.stringify(payload, null, 4));
 
         console.info(`Payload saved to ${filePath}`);
