@@ -6,7 +6,5 @@ RUN yarn install --production
 
 COPY . /backend/
 
-RUN yarn get-secret
-
 RUN yarn build
 CMD yarn start:dev
