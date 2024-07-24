@@ -6,14 +6,35 @@ dotenv.config();
 
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-const name = 'projects/gogumarket/secrets/gogu-market-secret-gcp-storage-keyfile/versions/1';
+const name = 'projects/gogumarket/secrets/gogu-market-secret-gcp-storage-keyfile';
+const member = 'user:e1ig0sanonymous777@gmail.com';
 
 const client = new SecretManagerServiceClient();
+
+async function grantAccess() {
+    const [policy] = await client.getIamPolicy({
+        resource: name,
+    });
+
+    policy.bindings.push({
+        role: 'roles/secretmanager.secretAccessor',
+        members: [member],
+    });
+
+    await client.setIamPolicy({
+        resource: name,
+        policy: policy,
+    });
+
+    console.log(`Updated IAM policy for ${name}`);
+}
+
+const name_version = 'projects/gogumarket/secrets/gogu-market-secret-gcp-storage-keyfile/versions/1';
 
 async function accessSecretVersion() {
     try {
         const [version] = await client.accessSecretVersion({
-            name: name,
+            name: name_version,
         });
 
         const payload = JSON.parse(version.payload.data.toString());
@@ -27,4 +48,5 @@ async function accessSecretVersion() {
     }
 }
 
+grantAccess();
 accessSecretVersion();
