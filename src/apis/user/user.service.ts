@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { IUserServiceCreate } from './interfaces/user.interface';
 import { FileService } from '../file/file.service';
+import { AuthService } from '../auth/auth.service';
+import { GetTokensDto } from '../auth/dto/response/get-tokens.dto';
 
 @Injectable()
 export class UserService {
@@ -11,10 +13,11 @@ export class UserService {
         @InjectRepository(User)
         private userRepository: Repository<User>,
         private readonly fileService: FileService,
+        private readonly authService: AuthService,
         private readonly dataSource: DataSource,
     ) {}
 
-    async create({ createUserDto, profileImage }: IUserServiceCreate): Promise<string> {
+    async create({ createUserDto, profileImage }: IUserServiceCreate): Promise<GetTokensDto> {
         const { phoneNumber } = createUserDto;
 
         const queryRunner = this.dataSource.createQueryRunner();
@@ -39,7 +42,7 @@ export class UserService {
 
             await queryRunner.commitTransaction();
 
-            return '회원가입 성공';
+            return this.authService.getTokens({ phoneNumber });
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw error instanceof BadRequestException ? error : new InternalServerErrorException('회원가입 중 오류가 발생했습니다.');

@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PhoneVerify } from './entities/phone-verify.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IAuthServiceRequestVerify, IAuthServiceVerifyPhone } from './interfaces/auth.interface';
+import {
+    IAuthServiceGetTokens,
+    IAuthServiceRequestVerify,
+    IAuthServiceRestoreAccessToken,
+    IAuthServiceVerifyPhone,
+} from './interfaces/auth.interface';
 import { sendTokenToSMS } from 'utils/phone';
+import { JwtService } from '@nestjs/jwt';
+import { GetTokensDto } from './dto/response/get-tokens.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(PhoneVerify)
         private phoneVerifyRepository: Repository<PhoneVerify>,
+        private jwtService: JwtService,
     ) {}
 
     async requestVerify({ requestVerifyDto }: IAuthServiceRequestVerify): Promise<string> {
@@ -52,20 +60,24 @@ export class AuthService {
         return '인증번호 전송 완료';
     }
 
-    async verifyPhone({ phoneVerifyDto }: IAuthServiceVerifyPhone): Promise<boolean> {
+    async verifyPhone({ phoneVerifyDto }: IAuthServiceVerifyPhone): Promise<GetTokensDto> {
         const { phoneNumber, verifyCode } = phoneVerifyDto;
 
         const existingVerification = await this.phoneVerifyRepository.findOne({ where: { phoneNumber } });
 
-        if (existingVerification && existingVerification.expiredAt < new Date()) {
-            throw new Error('인증번호가 만료되었습니다');
+        if (!existingVerification) {
+            throw new UnauthorizedException('핸드폰 번호가 존재하지 않습니다.');
         }
 
-        if (existingVerification && existingVerification.verifyCode === verifyCode) {
-            return true;
-        } else {
-            return false;
+        if (existingVerification.expiredAt < new Date()) {
+            throw new UnauthorizedException('인증번호가 만료되었습니다.');
         }
+
+        if (existingVerification.verifyCode !== verifyCode) {
+            throw new UnauthorizedException('인증번호가 일치하지 않습니다.');
+        }
+
+        return this.getTokens({ phoneNumber });
     }
 
     private generateVerificationCode(): string {
@@ -81,5 +93,15 @@ export class AuthService {
         const oneDay = 24 * 60 * 60 * 1000;
         const timeDiff = new Date().getTime() - updatedAt.getTime();
         return timeDiff >= oneDay;
+    }
+
+    getTokens({ phoneNumber }: IAuthServiceGetTokens): GetTokensDto {
+        const accessToken = this.jwtService.sign({ sub: phoneNumber }, { secret: process.env.JWT_SECRET_ACCESS, expiresIn: '12h' });
+        const refreshToken = this.jwtService.sign({ sub: phoneNumber }, { secret: process.env.JWT_SECRET_REFRESH, expiresIn: '180d' });
+        return { accessToken, refreshToken };
+    }
+
+    restoreAccessToken({ phoneNumber }: IAuthServiceRestoreAccessToken): string {
+        return this.jwtService.sign({ sub: phoneNumber }, { secret: process.env.JWT_SECRET_ACCESS, expiresIn: '12h' });
     }
 }

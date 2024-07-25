@@ -1,10 +1,11 @@
 import { Controller, Post, Body, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateUserWithSwaggerDto } from './dto/create-user-with-swagger.dto';
 import { Express } from 'express';
+import { CreateUserDto } from './dto/request/create-user.dto';
+import { GetTokensDto } from '../auth/dto/response/get-tokens.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -16,7 +17,7 @@ export class UserController {
     @ApiOperation({ summary: '유저 생성 API', description: '유저를 생성한다.' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({ type: CreateUserWithSwaggerDto })
-    @ApiCreatedResponse({ description: '유저를 생성한다.' })
+    @ApiCreatedResponse({ type: GetTokensDto, example: GetTokensDto })
     create(
         @Body() createUserDto: CreateUserDto,
         @UploadedFile(
@@ -31,7 +32,7 @@ export class UserController {
             }),
         )
         profileImage: Express.Multer.File | null,
-    ) {
+    ): Promise<GetTokensDto> {
         return this.userService.create({ createUserDto, profileImage });
     }
 

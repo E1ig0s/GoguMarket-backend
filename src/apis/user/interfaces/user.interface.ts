@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto } from '../dto/request/create-user.dto';
 import { Express } from 'express';
 
 export interface IUserServiceCreate {

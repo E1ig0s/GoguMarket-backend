@@ -16,7 +16,7 @@ steps:
           - set
           - image
           - deployment/gogu-market-nestjs
-          - gogu-market-nestjs-sha256-1=asia.gcr.io/gogumarket/gogu-market-nestjs:1.9
+          - gogu-market-nestjs-sha256-1=asia.gcr.io/gogumarket/gogu-market-nestjs:2.0
       env:
           - CLOUDSDK_COMPUTE_ZONE=asia-northeast3
           - CLOUDSDK_CONTAINER_CLUSTER=autopilot-cluster-1
