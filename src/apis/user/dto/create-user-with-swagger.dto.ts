@@ -1,17 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Express } from 'express';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserWithSwaggerDto {
     @ApiProperty({ example: '고구마와 감자' })
     @IsString()
     @IsNotEmpty()
     name: string;
-
-    @ApiProperty({ example: '1234@example.com', nullable: true })
-    @IsEmail()
-    @IsOptional()
-    email: string | null;
 
     @ApiProperty({ example: '회원2동' })
     @IsNotEmpty()

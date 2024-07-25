@@ -12,7 +12,7 @@ export class User {
     name: string;
 
     @ApiProperty()
-    @Column()
+    @Column({ nullable: true })
     email: string | null;
 
     @ApiProperty()

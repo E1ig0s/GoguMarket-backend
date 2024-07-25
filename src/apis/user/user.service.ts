@@ -45,6 +45,7 @@ export class UserService {
             return this.authService.getTokens({ phoneNumber });
         } catch (error) {
             await queryRunner.rollbackTransaction();
+            console.log(error);
             throw error instanceof BadRequestException ? error : new InternalServerErrorException('회원가입 중 오류가 발생했습니다.');
         } finally {
             await queryRunner.release();
